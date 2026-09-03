@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OA 助手 · MCP 验证工作台</title>
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="OA 助手首页"><span class="brand-icon">OA</span><span>OA 助手<small>MCP 验证工作台</small></span></a>
+    <button id="new-chat" class="new-chat"><span>＋</span> 新对话 <span class="shortcut">↗</span></button>
+    <div class="section-label">连接配置</div>
+    <section class="connection-card">
+      <div class="card-heading"><span class="small-icon">◇</span> 大语言模型 <span id="model-status" class="badge neutral">读取中</span></div>
+      <div id="model-name" class="model-name">加载配置…</div>
+      <div class="field-label">服务地址</div><div id="model-url" class="endpoint"></div>
+      <div class="key-state"><span>●</span> API Key 仅保存在后端</div>
+    </section>
+    <section class="connection-card">
+      <div class="card-heading"><span class="small-icon">⌘</span> MCP 服务 <span id="mcp-status" class="badge neutral">读取中</span></div>
+      <div class="service-name">landray-oa <span class="muted">/ stdio</span></div>
+      <div class="tool-name">oa_search_contacts</div>
+      <p class="small-copy">人员信息 · 部门查询 · 人数统计</p>
+      <details class="schema-details"><summary>查看工具参数 <span>↗</span></summary><pre id="tool-schema"></pre></details>
+    </section>
+    <div class="flow-card"><div class="section-label">一次查询的路径</div><div>你的问题 <span>→</span> 大模型</div><div>工具调用 <span>→</span> OA 实时查询</div><div>查询结果 <span>→</span> 自然语言回答</div></div>
+    <div class="sidebar-footer"><span class="live-dot"></span> 本地运行 <span class="muted">· 对话仅存于内存</span></div>
+  </aside>
+
+  <main class="chat-panel">
+    <header class="chat-header"><div><h1>与 OA 对话</h1><p>用自然语言提问，查看真实工具调用</p></div><span class="read-only">只读查询</span></header>
+    <div id="messages" class="messages" aria-label="对话消息" aria-live="polite">
+      <section id="welcome" class="welcome">
+        <div class="welcome-symbol">✳</div><div class="eyebrow">从一个问题开始</div>
+        <h2>想了解哪位同事，<br>或哪个部门？</h2>
+        <p>模型会选择查询参数，通过 MCP 获取 OA 数据。<br>右侧可以核对每一步的调用与返回结果。</p>
+        <div class="suggestions">
+          <button data-question="研发中心有多少人？"><span class="suggestion-icon">▦</span><span><strong>统计部门人数</strong><small>研发中心有多少人？</small></span><b>↗</b></button>
+          <button data-question="王诚超属于哪个部门？"><span class="suggestion-icon">◎</span><span><strong>查询人员信息</strong><small>王诚超属于哪个部门？</small></span><b>↗</b></button>
+          <button data-question="在信息中心查找王诚超"><span class="suggestion-icon">⌕</span><span><strong>在部门中找人</strong><small>在信息中心查找王诚超</small></span><b>↗</b></button>
+        </div>
+      </section>
+    </div>
+    <div class="composer-area">
+      <div id="progress" role="status" class="progress">连接服务中…</div>
+      <form id="chat-form" class="composer">
+        <label class="sr-only" for="question">输入你的问题</label>
+        <textarea id="question" maxlength="4000" rows="2" placeholder="例如：研发中心有多少人？" autofocus></textarea>
+        <div class="composer-bottom"><span><span class="live-dot"></span> OA 通讯录 <span class="muted">· 支持连续追问</span></span><div><button type="button" id="stop" hidden>停止</button><button type="submit" id="send" disabled>发送 <span>↑</span></button></div></div>
+      </form>
+      <p class="composer-hint">Enter 发送 · Shift + Enter 换行 <span>人数以 OA 当前可见通讯录为准</span></p>
+    </div>
+  </main>
+
+  <aside class="inspector">
+    <header><div class="eyebrow">INSPECTOR</div><h2>调用记录 <span id="trace-count">0</span></h2><p>让每个答案都有据可查</p></header>
+    <div class="metrics"><div><small>工具调用</small><strong id="metric-calls">—</strong></div><div><small>本次用时</small><strong id="metric-time">—</strong></div></div>
+    <div id="traces" class="traces"><div class="trace-empty"><span>⌁</span><strong>等待一次提问</strong><p>模型调用的工具、参数和返回数据<br>会实时出现在这里。</p></div></div>
+    <footer id="usage">不预设查询结果，模型自主选择工具</footer>
+  </aside>
+</body>
+</html>

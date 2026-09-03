@@ -1,0 +1,29 @@
+name: Test and Docker build
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: docker build -t oa-mcp:ci .
+      - name: Verify container health and authentication
+        shell: bash
+        run: |
+          docker run -d --name oa-mcp-ci -p 127.0.0.1:3211:3211 \
+            -e OA_BASE_URL=http://oa.invalid -e OA_USERNAME=fixture -e OA_PASSWORD=fixture \
+            -e MCP_AUTH_TOKEN=ci-test-token-not-for-production-123456 oa-mcp:ci
+          trap 'docker logs oa-mcp-ci; docker rm -f oa-mcp-ci' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:3211/healthz
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3211/mcp)" = 401
+          curl --fail http://127.0.0.1:3211/mcp \
+            -H 'Authorization: Bearer ci-test-token-not-for-production-123456' \
+            -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'

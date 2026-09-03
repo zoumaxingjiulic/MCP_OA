@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "landray-oa": {
+      "command": "node",
+      "args": ["D:/vscodework/MCP_OA/src/index.js"]
+    }
+  }
+}

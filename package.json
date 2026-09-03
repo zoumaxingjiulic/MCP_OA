@@ -1,0 +1,27 @@
+{
+  "name": "landray-oa-mcp",
+  "version": "0.3.0",
+  "private": true,
+  "description": "蓝凌 OA MCP：通讯录查询",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test",
+    "smoke": "node scripts/smoke.js",
+    "web": "node web/server.js",
+    "start:http": "node src/http.js",
+    "smoke:http": "node scripts/smoke-http.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "cheerio": "^1.0.0",
+    "dotenv": "^17.0.0",
+    "fetch-cookie": "^3.0.0",
+    "sm-crypto-v2": "^1.15.1",
+    "tough-cookie": "^6.0.0",
+    "zod": "^4.0.0"
+  }
+}

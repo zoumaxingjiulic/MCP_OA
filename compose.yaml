@@ -1,0 +1,30 @@
+services:
+  oa-mcp:
+    build: .
+    image: landray-oa-mcp:local
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${MCP_BIND_IP:-0.0.0.0}:${MCP_PUBLISHED_PORT:-3211}:3211"
+    environment:
+      OA_BASE_URL: ${OA_BASE_URL:?Set OA_BASE_URL in .env}
+      OA_USERNAME: ${OA_USERNAME:?Set OA_USERNAME in .env}
+      OA_PASSWORD: ${OA_PASSWORD:?Set OA_PASSWORD in .env}
+      OA_TIMEOUT_MS: ${OA_TIMEOUT_MS:-20000}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:?Set MCP_AUTH_TOKEN in .env}
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 3211
+      MCP_ALLOWED_ORIGINS: ${MCP_ALLOWED_ORIGINS:-}
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
