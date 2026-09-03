@@ -18,10 +18,11 @@ jobs:
         shell: bash
         run: |
           docker run -d --name oa-mcp-ci -p 127.0.0.1:3211:3211 \
+            --read-only --tmpfs /tmp:size=16m,noexec,nosuid --cap-drop ALL --security-opt no-new-privileges:true \
             -e OA_BASE_URL=http://oa.invalid -e OA_USERNAME=fixture -e OA_PASSWORD=fixture \
             -e MCP_AUTH_TOKEN=ci-test-token-not-for-production-123456 oa-mcp:ci
           trap 'docker logs oa-mcp-ci; docker rm -f oa-mcp-ci' EXIT
-          curl --retry 10 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:3211/healthz
+          curl --retry 10 --retry-all-errors --retry-delay 1 --max-time 5 --fail http://127.0.0.1:3211/healthz
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3211/mcp)" = 401
           curl --fail http://127.0.0.1:3211/mcp \
             -H 'Authorization: Bearer ci-test-token-not-for-production-123456' \
