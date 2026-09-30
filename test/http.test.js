@@ -23,7 +23,7 @@ test('HTTP MCP 官方客户端完成初始化、工具发现、参数默认值�
   const clients = [new Client({ name: 'a', version: '1' }), new Client({ name: 'b', version: '1' })];
   try {
     await Promise.all(clients.map(client => client.connect(new StreamableHTTPClientTransport(new URL(`${base}/mcp`), { requestInit: { headers } }))));
-    assert.deepEqual((await clients[0].listTools()).tools.map(tool => tool.name), ['oa_search_contacts']);
+    assert.deepEqual((await clients[0].listTools()).tools.map(tool => tool.name), ['oa_search_contacts', 'oa_list_meetings']);
     const results = await Promise.all(clients.map((client, i) => client.callTool({ name: 'oa_search_contacts', arguments: { keyword: `person${i}`, count_only: true } })));
     assert.deepEqual(results.map(r => r.structuredContent.keyword), ['person0', 'person1']);
     assert.equal(calls.length, 2);

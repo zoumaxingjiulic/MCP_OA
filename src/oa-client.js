@@ -4,6 +4,7 @@ import { sm2 } from 'sm-crypto-v2';
 import { OaError } from './errors.js';
 import { normalizePerson, parseSearchPage, searchInputSchema } from './directory.js';
 import { OrganizationDirectory } from './organization.js';
+import { MeetingDirectory } from './meetings.js';
 
 export const SEARCH_PATH = '/sys/zone/sys_zone_personInfo/sysZonePersonInfo.do';
 export const PERSON_PATH = '/sys/person/sys_person_zone/sysPersonZone.do';
@@ -22,12 +23,14 @@ export class OaClient {
   #loginPromise;
   #generation = 0;
   #organization;
+  #meetings;
 
   constructor(config, { fetchImpl = fetch } = {}) {
     this.#config = config;
     // Session cookies remain in memory and are never included in MCP responses or logs.
     this.#fetch = makeFetchCookie(fetchImpl, new CookieJar());
     this.#organization = new OrganizationDirectory(path => this.#authenticatedGet(path));
+    this.#meetings = new MeetingDirectory(path => this.#authenticatedGet(path));
   }
 
   async #request(path, { method = 'GET', body } = {}) {
@@ -73,7 +76,7 @@ export class OaClient {
 
   #checkStatus(response) {
     if (response.status === 401) throw new OaError('AUTH_FAILED', 'OA 登录失效或认证失败，请检查账号配置。');
-    if (response.status === 403) throw new OaError('PERMISSION_DENIED', '当前 OA 账号没有访问通讯录的权限。');
+    if (response.status === 403) throw new OaError('PERMISSION_DENIED', '当前 OA 账号没有访问所查询数据的权限。');
     if (response.status < 200 || response.status >= 300) {
       throw new OaError('UPSTREAM_HTTP_ERROR', `OA 返回 HTTP ${response.status}，请稍后重试或联系管理员。`);
     }
@@ -122,7 +125,7 @@ export class OaClient {
     this.#checkStatus(response);
     if (isLogin(response)) {
       this.#loggedIn = false;
-      throw new OaError('AUTH_FAILED', '重新登录后仍无法访问 OA 通讯录，请检查账号和登录策略。');
+      throw new OaError('AUTH_FAILED', '重新登录后仍无法访问 OA 数据，请检查账号和登录策略。');
     }
     return response;
   }
@@ -166,6 +169,10 @@ export class OaClient {
     };
     await Promise.all(Array.from({ length: Math.min(4, ids.length) }, worker));
     return contacts;
+  }
+
+  async listMeetings(input) {
+    return this.#meetings.list(input);
   }
 
   async searchContacts(input) {

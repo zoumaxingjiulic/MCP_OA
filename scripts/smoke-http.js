@@ -12,8 +12,8 @@ try {
     requestInit: { headers: { Authorization: `Bearer ${process.env.MCP_AUTH_TOKEN}` } },
   }));
   const result = await client.listTools();
-  assert.deepEqual(result.tools.map(tool => tool.name), ['oa_search_contacts']);
-  console.log('MCP HTTP 连接、初始化、工具发现成功：oa_search_contacts');
+  assert.deepEqual(result.tools.map(tool => tool.name), ['oa_search_contacts', 'oa_list_meetings']);
+  console.log('MCP HTTP 连接、初始化、工具发现成功：oa_search_contacts, oa_list_meetings');
   if (department) {
     const response = await client.callTool({ name: 'oa_search_contacts', arguments: { department, count_only: true } }, undefined, { timeout: 120000 });
     assert.ok(!response.isError, 'OA 查询失败，请检查账号、部门名称及网络。');

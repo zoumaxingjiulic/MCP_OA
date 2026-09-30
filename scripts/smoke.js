@@ -30,7 +30,7 @@ const transport = new StdioClientTransport({
 try {
   await client.connect(transport);
   const tools = await client.listTools();
-  assert.deepEqual(tools.tools.map(tool => tool.name), ['oa_search_contacts']);
+  assert.deepEqual(tools.tools.map(tool => tool.name), ['oa_search_contacts', 'oa_list_meetings']);
   const result = await client.callTool({ name: 'oa_search_contacts', arguments: input });
   if (result.isError) throw new Error(result.content[0].text);
   assert.ok(result.structuredContent);

@@ -201,7 +201,7 @@ test('标准 MCP stdio：初始化、工具发现、结构化结果和工具错�
     await client.connect(transport);
     transport.stderr?.on('data', chunk => { stderr += chunk.toString(); });
     const tools = await client.listTools();
-    assert.deepEqual(tools.tools.map(tool => tool.name), ['oa_search_contacts']);
+    assert.deepEqual(tools.tools.map(tool => tool.name), ['oa_search_contacts', 'oa_list_meetings']);
     assert.equal(tools.tools[0].annotations.readOnlyHint, true);
     const result = await client.callTool({ name: 'oa_search_contacts', arguments: { keyword: '测试', page_size: 1 } });
     assert.equal(result.isError, undefined);
